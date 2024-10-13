@@ -1,5 +1,7 @@
 import asyncio
+import os
 import random
+import shutil
 import string
 from time import time
 from urllib.parse import unquote, quote
@@ -10,7 +12,8 @@ from aiocfscrape import CloudflareScraper
 from aiohttp_proxy import ProxyConnector
 from better_proxy import Proxy
 from pyrogram import Client
-from pyrogram.errors import Unauthorized, UserDeactivated, AuthKeyUnregistered, FloodWait
+from pyrogram.errors import (Unauthorized, UserDeactivated, AuthKeyUnregistered, FloodWait, UserDeactivatedBan,
+                             AuthKeyDuplicated, SessionExpired, SessionRevoked)
 from pyrogram.raw.functions.messages import RequestAppWebView
 from pyrogram.raw import types
 from .agents import generate_random_user_agent
@@ -117,7 +120,7 @@ class Tapper:
 
         return load
 
-    async def get_tg_web_data(self, proxy: str | None) -> str:
+    async def get_tg_web_data(self, proxy: str | None):
         if proxy:
             proxy = Proxy.from_str(proxy)
             proxy_dict = dict(
@@ -139,8 +142,17 @@ class Tapper:
                 with_tg = False
                 try:
                     await self.tg_client.connect()
-                except (Unauthorized, UserDeactivated, AuthKeyUnregistered):
-                    raise InvalidSession(self.session_name)
+                except (Unauthorized, UserDeactivated, AuthKeyUnregistered, UserDeactivatedBan, AuthKeyDuplicated,
+                        SessionExpired, SessionRevoked):
+                    if self.tg_client.is_connected:
+                        await self.tg_client.disconnect()
+                    session_file = f"sessions/{self.session_name}.session"
+                    bad_session_file = f"{self.session_name}.session"
+                    if os.path.exists(session_file):
+                        os.makedirs("deleted_sessions", exist_ok=True)
+                        shutil.move(session_file, f"deleted_sessions/{bad_session_file}")
+                        self.critical(f"Session {self.session_name} is deleted, moving to deleted sessions folder")
+                    return None
 
             self.start_param = random.choices([settings.REF_ID, "ref_a7dtPWXcOB"], weights=[75, 25], k=1)[0]
             peer = await self.tg_client.resolve_peer('BlumCryptoBot')
@@ -173,6 +185,18 @@ class Tapper:
                 await self.tg_client.disconnect()
 
             return tg_web_data
+
+        except (Unauthorized, UserDeactivated, AuthKeyUnregistered, UserDeactivatedBan, AuthKeyDuplicated,
+                SessionExpired, SessionRevoked) as e:
+            if self.tg_client.is_connected:
+                await self.tg_client.disconnect()
+            session_file = f"sessions/{self.session_name}.session"
+            bad_session_file = f"{self.session_name}.session"
+            if os.path.exists(session_file):
+                os.makedirs("deleted_sessions", exist_ok=True)
+                shutil.move(session_file, f"deleted_sessions/{bad_session_file}")
+                self.critical(f"Session {self.session_name} is not working, moving to 'deleted sessions' folder, {e}")
+                await asyncio.sleep(99999999)
 
         except InvalidSession as error:
             raise error
@@ -310,7 +334,12 @@ class Tapper:
                 'Say No to Rug Pull!': 'SUPERBLUM',
                 'What Are AMMs?': 'CRYPTOSMART',
                 'Liquidity Pools Guide': 'BLUMERSSS',
-                '$2.5M+ DOGS Airdrop': 'HAPPYDOGS'
+                '$2.5M+ DOGS Airdrop': 'HAPPYDOGS',
+                "Doxxing? What's that?": 'NODOXXING',
+                "Pre-Market Trading?": 'WOWBLUM',
+                'How to Memecoin?': 'MEMEBLUM',
+                'Token Burning: How \u0026 Why?': 'ONFIRE',
+                'Play track \u0026 type track name': 'blum - big city life'
             }
 
             payload = {'keyword': keywords.get(title)}
@@ -343,7 +372,7 @@ class Tapper:
             while True:
                 resp = await http_client.get(f'{self.earn_domain}/api/v1/tasks', ssl=False)
                 if resp.status not in [200, 201]:
-                    continue
+                    return None
                 else:
                     break
             resp_json = await resp.json()
@@ -359,6 +388,8 @@ class Tapper:
                                 for sub_task in sub_tasks:
                                     collected_tasks.append(sub_task)
                             if t.get('type') != 'PARTNER_INTEGRATION':
+                                collected_tasks.append(t)
+                            if t.get('type') == 'PARTNER_INTEGRATION' and t.get('reward'):
                                 collected_tasks.append(t)
 
                     if task.get('sectionType') == 'WEEKLY_ROUTINE':
@@ -470,7 +501,7 @@ class Tapper:
             while True:
                 resp = await http_client.post(f"{self.game_url}/api/v1/farming/claim", ssl=False)
                 if resp.status not in [200, 201]:
-                    continue
+                    return None
                 else:
                     break
 
@@ -494,7 +525,7 @@ class Tapper:
             while True:
                 resp = await http_client.get(f"{self.user_url}/api/v1/friends/balance", ssl=False)
                 if resp.status not in [200, 201]:
-                    continue
+                    return 0, False
                 else:
                     break
             resp_json = await resp.json()
@@ -574,7 +605,6 @@ class Tapper:
             logger.info(f"<light-yellow>{self.session_name}</light-yellow> | Bot will start in <ly>{random_delay}s</ly>")
             await asyncio.sleep(random_delay)
 
-        access_token = None
         refresh_token = None
         login_need = True
 
@@ -592,21 +622,20 @@ class Tapper:
                         del http_client.headers["Authorization"]
 
                     init_data = await self.get_tg_web_data(proxy=proxy)
+                    if init_data:
+                        access_token, refresh_token = await self.login(http_client=http_client, initdata=init_data)
+                        if access_token and refresh_token:
+                            http_client.headers["Authorization"] = f"Bearer {access_token}"
 
-                    access_token, refresh_token = await self.login(http_client=http_client, initdata=init_data)
-
-                    http_client.headers["Authorization"] = f"Bearer {access_token}"
-
-                    if self.first_run is not True:
-                        self.success("Logged in successfully")
-                        self.first_run = True
-
-                    login_need = False
+                        if self.first_run is not True:
+                            self.success("Logged in successfully")
+                            self.first_run = True
 
                 timestamp, start_time, end_time, play_passes = await self.balance(http_client=http_client)
 
-                if isinstance(play_passes, int):
+                if isinstance(play_passes, int) and login_need:
                     self.info(f'You have {play_passes} play passes')
+                    login_need = False
 
                 msg = await self.claim_daily_reward(http_client=http_client)
                 if isinstance(msg, bool) and msg:
