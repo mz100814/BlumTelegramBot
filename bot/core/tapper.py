@@ -470,10 +470,7 @@ class Tapper:
 
     async def start_game(self, http_client: aiohttp.ClientSession):
         try:
-            resp = await http_client.post(f"{self.game_url}/api/v1/game/play", ssl=False)
-            # 打印响应头和内容以进行调试
-            print(f"start_game Response headers: {resp.headers}")
-            print(f"start_game Response content: {await resp.text()}")
+            resp = await http_client.post(f"{self.game_url}/api/v2/game/play", ssl=False)
             response_data = await resp.json()
             if "gameId" in response_data:
                 return response_data.get("gameId")
@@ -487,10 +484,10 @@ class Tapper:
             points = random.randint(settings.POINTS[0], settings.POINTS[1])
             json_data = {"gameId": game_id, "points": points}
 
-            resp = await http_client.post(f"{self.game_url}/api/v1/game/claim", json=json_data,
+            resp = await http_client.post(f"{self.game_url}/api/v2/game/claim", json=json_data,
                                           ssl=False)
             if resp.status != 200:
-                resp = await http_client.post(f"{self.game_url}/api/v1/game/claim", json=json_data,
+                resp = await http_client.post(f"{self.game_url}/api/v2/game/claim", json=json_data,
                                               ssl=False)
 
             txt = await resp.text()
