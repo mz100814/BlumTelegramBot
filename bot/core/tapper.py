@@ -471,6 +471,9 @@ class Tapper:
     async def start_game(self, http_client: aiohttp.ClientSession):
         try:
             resp = await http_client.post(f"{self.game_url}/api/v1/game/play", ssl=False)
+            # 打印响应头和内容以进行调试
+            print(f"start_game Response headers: {resp.headers}")
+            print(f"start_game Response content: {await resp.text()}")
             response_data = await resp.json()
             if "gameId" in response_data:
                 return response_data.get("gameId")
