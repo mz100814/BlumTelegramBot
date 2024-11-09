@@ -1,8 +1,8 @@
-[![Static Badge](https://img.shields.io/badge/Telegram-Channel-Link?style=for-the-badge&logo=Telegram&logoColor=white&logoSize=auto&color=blue)](https://t.me/hidden_coding)
+[![Static Badge](https://img.shields.io/badge/Hidden_Code_LINKS-yes?style=for-the-badge&color=black)](https://t.me/hidden_coding)
+[![Static Badge](https://img.shields.io/badge/Channel-yes?style=for-the-badge&logo=Telegram&logoColor=white&logoSize=auto&color=blue)](https://t.me/hidden_coding)
+[![Static Badge](https://img.shields.io/badge/Chat-yes?style=for-the-badge&logo=Telegram&logoColor=white&logoSize=auto&color=blue)](https://t.me/hidden_codding_chat)
+[![Static Badge](https://img.shields.io/badge/BOT_MARKET-yes?style=for-the-badge&logo=Telegram&logoColor=white&logoSize=auto&color=blue)](https://t.me/hcmarket_bot?start=referral_593084007)
 
-[![Static Badge](https://img.shields.io/badge/Telegram-Chat-yes?style=for-the-badge&logo=Telegram&logoColor=white&logoSize=auto&color=blue)](https://t.me/hidden_codding_chat)
-
-[![Static Badge](https://img.shields.io/badge/Telegram-Bot%20Link-Link?style=for-the-badge&logo=Telegram&logoColor=white&logoSize=auto&color=blue)](https://t.me/BlumCryptoBot/app?startapp=ref_QwD3tLsY8f)
 
 ## Recommendation before use
 
@@ -21,16 +21,20 @@
 
 
 ## [Settings](https://github.com/HiddenCodeDevs/BlumTelegramBot/blob/main/.env-example/)
-|          Settings           |                                 Description                                  |
-|:---------------------------:|:----------------------------------------------------------------------------:|
-|    **API_ID / API_HASH**    |   Platform data from which to run the Telegram session (default - android)   |
-|       **PLAY_GAMES**        |              Play games or just start farming (default is True)              |
-|         **POINTS**          |        Points per game (default is [190, 230] ((That is, 190 to 230)         |
-| **USE_RANDOM_DELAY_IN_RUN** |                              Name saying itself                              |
-|   **RANDOM_DELAY_IN_RUN**   |               Random seconds delay for ^^^ (default is [5, 30]               |
-|         **USE_REF**         |         Register accounts with ur referral or not (default - False)          |
-|         **REF_ID**          |   Your referral argument (comes after app/startapp? in your referral link)   |
-|   **USE_PROXY_FROM_FILE**   | Whether to use a proxy from the `bot/config/proxies.txt` file (True / False) |
+|              Settings               |                                 Description                                  |
+|:-----------------------------------:|:----------------------------------------------------------------------------:|
+|        **API_ID / API_HASH**        |   Platform data from which to run the Telegram session (default - android)   |
+|           **PLAY_GAMES**            |              Play games or just start farming (default is True)              |
+|             **POINTS**              |        Points per game (default is [190, 230] ((That is, 190 to 230)         |
+|           **AUTO_TASKS**            |                      Do tasks or not (default is True)                       |
+|         **TRIBE_CHAT_TAG**          |                    Your tribe telegram tag for auto join                     |
+|     **USE_RANDOM_DELAY_IN_RUN**     |                              Name saying itself                              |
+|       **RANDOM_DELAY_IN_RUN**       |               Random seconds delay for ^^^ (default is [5, 30]               |
+|             **USE_REF**             |         Register accounts with ur referral or not (default - False)          |
+|             **REF_ID**              |  Your referral argument (comes after app/startapp? template: _r_abcde1234_)  |
+|       **USE_PROXY_FROM_FILE**       | Whether to use a proxy from the `bot/config/proxies.txt` file (True / False) |
+| **SLEEP_MINUTES_BEFORE_ITERATIONS** |  Sleep minutes between checks (default is [120, 600] ((That is, 120 to 600)  |
+|              **DEBUG**              |          Disable random delay in run and change log level to DEBUG           |
 
 ## Quick Start 📚
 
