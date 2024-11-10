@@ -49,7 +49,4 @@ def get_random_letters(hash_data: any = None) -> str:
     return md5(hash_data.encode()).hexdigest()
 
 def get_referral_token() -> str:
-    ref_id = settings.REF_ID
-    if not ref_id or ref_id.startswith("r_"):
-        ref_id = "r_d79d539ace"
-    return choices([ref_id, "r_d79d539ace"], weights=(75, 25), k=1)[0]
+    return settings.REF_ID
